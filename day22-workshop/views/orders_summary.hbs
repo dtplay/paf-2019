@@ -1,0 +1,20 @@
+<table border="1">
+	<thead>
+		<tr>
+			<th>Company</th>
+			<th>Total Num of Orders</th>
+			<th>Sum of all orders ($)</th>
+			<th>Average per order ($)</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each line}}
+			<tr>
+				<td>{{ this.company }}</td>
+				<td>{{ this.total_orders }}</td>
+				<td>${{ this.orders_sum }}</td>
+				<td>${{ this.orders_avg }}</td>
+			</tr>
+		{{/each}}
+	</tbody>
+</table>
