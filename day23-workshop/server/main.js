@@ -3,13 +3,17 @@
 const fs = require('fs');
 const mysql = require('mysql');
 const express = require('express');
-const hbs = require('express-handlebars');
 const morgan = require('morgan');
 
-const config = require('./config');
-config.ssl = {
-    ca: fs.readFileSync(config.cacert)
-};
+let config;
+
+if (fs.existsSync(__dirname + '/config.js')) {
+	config = require(__dirname + '/config');
+	config.ssl = {
+		 ca: fs.readFileSync(config.cacert)
+	};
+} else
+	config = {};
 
 
 // configurations
@@ -19,34 +23,18 @@ const PORT = parseInt(process.argv[2] || process.env.APP_PORT || process.env.POR
 // start the application
 const app = express();
 
-app.engine('hbs', hbs({defaultLayout: 'main.hbs'}));
-app.set('view engine', 'hbs');
-app.set('views', __dirname + '/views');
-
-const SELECT_ORDERS_SUMMARY = 'select * from orders_summary';
 
 app.use(morgan('tiny'));
 
-app.get(['/', '/api/orders/summary'],
+// POST /api/order, application/json
+// req.body => 201
+app.post('/api/order', express.json(),
 	(req, resp) => {
-		pool.getConnection(
-			(err, conn) => {
-				if (err)
-					return resp.status(500).type('text/html').end(err);
-				conn.query(SELECT_ORDERS_SUMMARY, 
-					(err, result) => {
-						conn.release();
-						resp.status(200).type('text/html')
-							.render('orders_summary', { line: result });
-					}
-				)
-			}
-		)
+		console.info('body: ', req.body);
+
+		resp.status(201).json({});
 	}
 )
-
-
-app.use(express.static(__dirname + '/public'));
 
 pool.getConnection(
     (err, conn) => {
@@ -67,5 +55,4 @@ pool.getConnection(
             )
         })
     }
-
 )
