@@ -12,7 +12,26 @@ const startTransaction = (connection) => {
 	)
 }
 
-const mkQuery = (sql) => {
+const mkQueryFromPool = (qObj, pool) => {
+	return params => {
+		return new Promise(
+			(resolve, reject) => {
+				pool.getConnection(
+					(err, conn) => {
+						if (err)
+							return reject(err)
+						qObj({ connection: conn, params: params || [] })
+							.then(status => { resolve(status.result) })
+							.catch(status => { reject(status.error) })
+							.finally(() => conn.release() )
+					}
+				)
+			}
+		)
+	}
+}
+
+const mkQuery = function(sql) {
 	return status => {
 		const conn = status.connection;
 		const params = status.params || [];
@@ -34,7 +53,6 @@ const commit = (status) => {
 	return new Promise(
 		(resolve, reject) => {
 			const conn = status.connection;
-			console.info('in commit');
 			conn.commit(err => {
 				if (err)
 					return reject({ connection: conn, error: err });
@@ -57,4 +75,4 @@ const rollback = (status) => {
 	)
 }
 
-module.exports = { startTransaction, mkQuery, commit, rollback };
+module.exports = { startTransaction, mkQuery, commit, rollback, mkQueryFromPool };
