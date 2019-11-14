@@ -7,7 +7,7 @@ import { UpdateComponent } from './components/update.component';
 const ROUTES: Routes = [
   { path: '', component: MenuComponent },
   { path: 'order', component: OrdersComponent },
-  { path: 'order/:ordId', component: UpdateComponent },
+  { path: 'order/:orderId', component: UpdateComponent },
   { path: '**', redirectTo: '/', pathMatch: 'full' }
 ];
 

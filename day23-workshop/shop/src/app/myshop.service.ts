@@ -13,4 +13,11 @@ export class MyShopService {
     );
   }
 
+  getOrder(orderId: number): Promise<Order> {
+    return (
+      this.http.get<Order>(`/api/order/${orderId}`)
+        .toPromise()
+    );
+  }
+
 }

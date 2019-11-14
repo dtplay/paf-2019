@@ -13,8 +13,20 @@ if (fs.existsSync(__dirname + '/config.js')) {
 	config.ssl = {
 		 ca: fs.readFileSync(config.cacert)
 	};
-} else
-	config = {};
+} else {
+	console.info('using env');
+	config = {
+		host: process.env.DB_HOST,
+		port: process.env.DB_PORT,
+		user: process.env.DB_USER,
+		password: process.env.DB_PASSWORD,
+		database: 'myshop',
+		connectionLimit: 4,
+		ssl: {
+			ca: process.env.DB_CA
+		}
+	};
+}
 
 
 // configurations
@@ -34,10 +46,10 @@ const getNewOrderId = db.mkQuery(GET_NEW_ORDER_ID)
 const createOrderDetails = db.mkQuery(CREATE_ORDER_DETAILS);
 
 
-const getAllOrders = db.mkQueryFromPool(
-	db.mkQuery(GET_ALL_ORDERS), pool);
-const getOrderByOrderId = db.mkQueryFromPool(
-	db.mkQuery(FIND_ORDER_BY_ID), pool);
+const getAllOrders = db.mkQueryFromPool(db.mkQuery(GET_ALL_ORDERS), pool);
+const getOrderByOrderId = db.mkQueryFromPool(db.mkQuery(FIND_ORDER_BY_ID), pool);
+
+const createOrderStandAlone = db.mkQueryFromPool(createOrder, pool);
 
 // start the application
 const app = express();
@@ -148,6 +160,8 @@ app.post('/api/order', express.json(),
 		)
 	}
 )
+
+app.use(express.static(__dirname + '/angular'));
 
 pool.getConnection(
     (err, conn) => {
