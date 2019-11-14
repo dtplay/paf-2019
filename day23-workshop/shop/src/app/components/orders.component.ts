@@ -40,8 +40,8 @@ export class OrdersComponent implements OnInit {
     this.myShopSvc.createOrder(order)
       .then(() => {
         console.info('created')
-        for (let i = 0; i < this.orderDetails.length; i++)
-          this.orderDetails.removeAt(i);
+        this.orderDetails = this.fb.array([]);
+        this.orderForm.controls['orderDetails'] = this.orderDetails;
         this.orderForm.reset();
       })
       .catch(err => console.error('error: ', err));
