@@ -8,5 +8,5 @@
     style="margin-top: 20px;">
   <input type="number" min="0" placeholder="Order number" size=20
     formControlName="orderId">
-  <button type="submit">Search Order</button>
+  <button type="submit" [disabled]='form.invalid'>Search Order</button>
 </form>

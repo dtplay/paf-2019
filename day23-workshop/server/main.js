@@ -27,12 +27,17 @@ const GET_NEW_ORDER_ID = 'select last_insert_id() as ord_id from orders';
 const CREATE_ORDER_DETAILS = 'insert into order_details(description, quantity, ord_id) values ?';
 
 const GET_ALL_ORDERS = 'select * from orders';
+const FIND_ORDER_BY_ID = 'select * from orders o join order_details od on o.ord_id = od.ord_id where o.ord_id = ?';
 
 const createOrder = db.mkQuery(CREATE_ORDER);
 const getNewOrderId = db.mkQuery(GET_NEW_ORDER_ID)
 const createOrderDetails = db.mkQuery(CREATE_ORDER_DETAILS);
 
-const getAllOrders = db.mkQueryFromPool(db.mkQuery(GET_ALL_ORDERS), pool);
+
+const getAllOrders = db.mkQueryFromPool(
+	db.mkQuery(GET_ALL_ORDERS), pool);
+const getOrderByOrderId = db.mkQueryFromPool(
+	db.mkQuery(FIND_ORDER_BY_ID), pool);
 
 // start the application
 const app = express();
@@ -45,6 +50,33 @@ app.get('/api/orders',
 		getAllOrders()
 			.then(result => {
 				resp.status(200).type('application/json').json(result)
+			})
+			.catch(error => {
+				resp.status(400).type('application/json').json({ error })
+			})
+	}
+)
+
+app.get('/api/order/:orderId',
+	(req, resp) => {
+		const orderId = parseInt(req.params.orderId);
+		getOrderByOrderId([ orderId ])
+			.then(result => {
+				if (result.length <= 0)
+					return resp.status(404).type('application/json').json({});
+				const order = {
+					email: result[0].email,
+					orderId: result[0].ord_id,
+					orderDetails: []
+				}
+				order.orderDetails = result.map(v => {
+					return {
+						ord_details_id: v.ord_details_id,
+						description: v.description,
+						quantity: v.quantity
+					}
+				});
+				resp.status(200).type('application/json').json(order);
 			})
 			.catch(error => {
 				resp.status(400).type('application/json').json({ error })
