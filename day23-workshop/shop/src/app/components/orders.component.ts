@@ -37,10 +37,11 @@ export class OrdersComponent implements OnInit {
         quantity: parseInt(fg.value['quantity']) || 1
       } as OrderDetail);
     }
-    console.info('order: ', order);
     this.myShopSvc.createOrder(order)
       .then(() => {
         console.info('created')
+        for (let i = 0; i < this.orderDetails.length; i++)
+          this.orderDetails.removeAt(i);
         this.orderForm.reset();
       })
       .catch(err => console.error('error: ', err));
