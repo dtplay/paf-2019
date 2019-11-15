@@ -61,6 +61,9 @@ const upload = multer({ dest: __dirname + '/tmp' });
 const INSERT_NEW_ARTICLE = 'insert into articles(art_id, title, email, article, posted, image_url) values (?, ?, ?, ?, ?, ?)';
 const insertNewArticle = db.mkQuery(INSERT_NEW_ARTICLE);
 
+const GET_ALL_ARTICLES = 'select * from articles';
+const getAllArticles = db.mkQueryFromPool(db.mkQuery(GET_ALL_ARTICLES), pool);
+
 // Create Express application
 const app = express();
 
@@ -68,6 +71,20 @@ app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
 
 app.use(morgan('tiny'));
+
+app.get('/articles',
+    (req, resp) => {
+        getAllArticles()
+            .then(result => {
+                resp.status(200).type('text/html')
+                    .render('articles', { articles: result });
+            })
+            .catch(error => {
+                    return resp.status(400).type('text/plain')
+                        .send(`Error ${error}`);
+            })
+    }
+)
 
 app.post('/article', upload.single('image'),
 	(req, resp) => {
@@ -111,6 +128,7 @@ app.post('/article', upload.single('image'),
                             }
                         )
                     )
+                    .then(db.passthru, db.logError('before commit'))
                     .then(db.commit, db.rollback)
                     .then(
                         (status) => 

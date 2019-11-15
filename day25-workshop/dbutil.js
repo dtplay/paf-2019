@@ -49,6 +49,15 @@ const mkQuery = function(sql) {
 	}
 }
 
+const passthru = (status) => Promise.resolve(status)
+
+const logError = (msg = "Error: ") => {
+	return (status) => {
+		 console.error(msg, status.error);
+		 return Promise.reject(status);
+	}
+}
+
 const commit = (status) => {
 	return new Promise(
 		(resolve, reject) => {
@@ -75,4 +84,4 @@ const rollback = (status) => {
 	)
 }
 
-module.exports = { startTransaction, mkQuery, commit, rollback, mkQueryFromPool };
+module.exports = { startTransaction, mkQuery, commit, rollback, mkQueryFromPool, passthru, logError };
