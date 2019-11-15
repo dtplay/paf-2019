@@ -3,6 +3,7 @@
 const { join } = require('path');
 const fs = require('fs');
 const mysql = require('mysql');
+const multer = require('multer');
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
