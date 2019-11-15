@@ -1,0 +1,30 @@
+<h1>Angular Image Upload</h1>
+
+<form #form="ngForm" (ngSubmit)="performUpload(form)">
+
+  <label for="comments">Comments</label>
+  <br>
+  <textarea id="comments" name="comments" cols="30" rows="10" ngModel></textarea>
+  <br>
+
+  <label for="myImage">Image file</label>
+  <br>
+  <input type="file" name="myImage" id="myImage"
+      ngModel #imageFile accept="image/png">
+
+  <br>
+  <button type="submit">Upload</button>
+
+</form>
+
+<form #findImageForm="ngForm" (ngSubmit)="findImage(findImageForm)">
+  <label for="myImage">Get Image</label>
+  <br>
+  <input type="text" name="comment" id="comment" ngModel>
+  <button type="submit">Upload</button>
+
+</form>
+
+<div>
+  <img [src]="imageSrc" height="300">
+</div>
