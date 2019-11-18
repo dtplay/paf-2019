@@ -25,8 +25,7 @@ app.get('/receipes',
                         .toArray();
         const p2 = client.db('food').collection('recipes')
                         .find({})
-                        .count()
-                        .toArray();
+                        .count();
 
         Promise.all([ p1, p2 ])
             .then(result => {
