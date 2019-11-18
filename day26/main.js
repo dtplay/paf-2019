@@ -29,7 +29,14 @@ app.get('/receipes',
 
         Promise.all([ p1, p2 ])
             .then(result => {
-
+                resp.status(200).type('application/json')
+                    .json({
+                        recipes: result[0],
+                        offset: offset,
+                        limit: limit,
+                        total: result[1],
+                        timestamp: (new Date()).toString()
+                    })
             })
     }
 )
