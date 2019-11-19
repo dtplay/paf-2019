@@ -1,0 +1,20 @@
+language: node_js
+
+node_js:
+- node
+
+dist: bionic
+sudo: required
+
+branches:
+    only:
+    - release
+
+before_script:
+- npm install 
+
+deploy:
+    provider: heroku
+    api_key: $HEROKU_KEY
+    app: murmuring-wave-07637
+    on: release

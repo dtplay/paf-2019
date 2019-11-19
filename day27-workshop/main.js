@@ -30,6 +30,10 @@ const app = express();
 app.use(cors());
 app.use(morgan('tiny'));
 
+app.get('/posts/:poster', (req, resp) => {
+	// Use hbs
+});
+
 app.post('/post-news', upload.single('image'),
 
 	(req, resp, next) => {
@@ -59,9 +63,43 @@ app.post('/post-news', upload.single('image'),
 		console.info('body: ', req.body);
 		console.info('file: ', req.file);
 
-		resp.status(201).type('text/html').send(
-			`<h1>Article by ${req.body.uploader} posted</h1>`
+		new Promise((resolve, reject) => {
+			fs.readFile(req.file.path,
+				(err, buff) => {
+					console.error('error: ', err);
+					const params = {
+						Bucket: 'abc123',
+						Key: `myfbpost/${req.file.filename}`, ACL: 'public-read',
+						ContentType: req.file.mimetype, Body: buff
+					}
+					conns.s3.putObject(params,
+						(err, result) => {
+							if (err)
+								return reject(err);
+							resolve();
+						}
+					)
+				}
+			)
+		})
+		.then(() => 
+			conns.mongodb.db('myfb').collection('posts')
+				.insert({
+					poster: req.body.uploader,
+					comments: req.body.comments,
+					image: req.file.filename,
+					posted: (new Date()).getTime()
+				})
 		)
+		.then(() => {
+			resp.status(201).type('text/html').send(
+				`<h2>Article by ${req.body.uploader} posted</h2>`)
+		})
+		.catch((error) => {
+			resp.status(500).type('text/html').send(
+				`<h2>Error ${error} </h2>`)
+		})
+
 	}
 )
 
