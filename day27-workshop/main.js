@@ -34,7 +34,7 @@ app.post('/post-news', upload.single('image'),
 
 	(req, resp, next) => {
 		resp.on('finish',
-			(req, resp) => {
+			() => {
 				fs.unlink(req.file.path, err => { });
 			}
 		)
@@ -58,7 +58,7 @@ app.post('/post-news', upload.single('image'),
 	(req, resp) => {
 		console.info('body: ', req.body);
 		console.info('file: ', req.file);
-		// Check if the user exists. If the use does not exist, return 403
+
 		resp.status(201).type('text/html').send(
 			`<h1>Article by ${req.body.uploader} posted</h1>`
 		)
