@@ -27,11 +27,33 @@ const findUser = db.mkQueryFromPool(db.mkQuery(FIND_UPLOADER), conns.mysql);
 
 const app = express();
 
+app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
+app.set('view engine', 'hbs')
+
 app.use(cors());
 app.use(morgan('tiny'));
 
 app.get('/posts/:poster', (req, resp) => {
 	// Use hbs
+	const poster = req.params.poster;
+
+	conns.mongodb.db('myfb').collection('posts')
+		.find({ poster })
+		.map(v => {
+			return ({
+				comments: v.comments,
+				image: v.image,
+				posted: (new Date(v.posted)).toString()
+			})
+		})
+		.toArray()
+		.then(result => {
+			resp.status(200).type('text/html').render('posts', { posts: result });
+		})
+		.catch(error => {
+			resp.status(500).type('text/html')
+				.send(`<h2>Error: ${error}</h2>`);
+		})
 });
 
 app.post('/post-news', upload.single('image'),

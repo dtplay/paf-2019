@@ -16,5 +16,6 @@ before_script:
 deploy:
     provider: heroku
     api_key: $HEROKU_KEY
-    app: murmuring-wave-07637
-    on: release
+    app: your_heroku_app
+    on: 
+        branch: release

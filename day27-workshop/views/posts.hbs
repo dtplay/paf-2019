@@ -1,0 +1,11 @@
+{{#each posts}}
+	<div>
+		<img src="https://abc123.sgp1.digitaloceanspaces.com/myfbpost/{{this.image}}" 
+				style="height: 150px; width: auto;">
+		<div>
+			{{ this.comments}}
+			<div>{{ this.posted }}</div>
+		</div>
+	</div>
+{{/each}}
+
