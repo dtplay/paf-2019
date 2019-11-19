@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Upload</title>
+	</head>
+	<body>
+
+		<h1>Upload My News</h1>
+
+		<form method="post" action="/post-news" enctype="multipart/form-data">
+			<table>
+				<tr>
+					<td>Uploader:</td>
+					<td> <input id="uploader" type="text" name="uploader" required> </td>
+				</tr>
+				<tr>
+					<td>Image:</td>
+					<td> <input id="image" type="file" name="image" required> </td>
+				</tr>
+				<tr>
+					<td>Comments:</td>
+					<td> 
+						<textarea id="comments" name="comments" cols="40" rows="5"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<button type="submit">Upload</button:submit>
+					</td>
+				</tr>
+			</table>
+		</form>
+		
+	</body>
+</html>
