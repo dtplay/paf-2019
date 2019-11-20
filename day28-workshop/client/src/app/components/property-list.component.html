@@ -1,0 +1,27 @@
+
+<div class="body">
+  <h2>{{ country }}</h2>
+
+  <mat-card *ngFor="let l of listings.properties" style="margin-bottom: 3vh">
+    <mat-card-header>
+      <img mat-card-avatar [src]="l.host">
+      <mat-card-title>{{ l.host_name }}</mat-card-title>
+      <mat-card-subtitle>{{ l.city }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <img mat-card-image [src]="l.image" alt="">
+
+    <mat-card-content>
+      <p>
+        {{ l.summary }}
+      </p>
+    </mat-card-content>
+
+    <mat-card-actions fxLayout="row column" fxLayoutAlign="end">
+      <button type="button" mat-button (click)="view(l._id)">
+        <mat-icon> more_vert </mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>
