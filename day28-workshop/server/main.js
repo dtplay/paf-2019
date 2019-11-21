@@ -8,10 +8,13 @@ const config = require('/opt/tmp/keys/config');
 
 const m = require('./mongoutil');
 
+const s = require('./s3util');
+
 const PORT = parseInt(process.argv[2] || process.env.APP_PORT || process.env.PORT) || 3000;
 
 //const client = new MongoClient(config.atlas.url, { useUnifiedTopology: true })
 const client = new MongoClient(config.mongodb.url, { useUnifiedTopology: true })
+const s3conn = s.makeS3('sgp1.digitaloceanspaces.com', config);
 
 const app = express();
 
@@ -29,11 +32,11 @@ app.get('/api/countries',
 				resp.status(200).json({ countries: result });
 			})
 			.catch(error => {
+				console.error('Error: %s: ', req.originalUrl, error);
 				resp.status(500).json({ error });
 			});
 	}
 )
-
 
 app.get('/api/country/:country',
 	(req, resp) => {
@@ -47,7 +50,7 @@ app.get('/api/country/:country',
 				resp.status(200).json({ properties: result });
 			})
 			.catch(error => {
-				console.error(error);
+				console.error('Error: %s: ', req.originalUrl, error);
 				resp.status(500).json({ error });
 			});
 	}
@@ -62,14 +65,33 @@ app.get('/api/property/:id',
 				resp.status(200).json(result);
 			})
 			.catch(error => {
-				console.error(error);
+				console.error('Error: %s: ', req.originalUrl, error);
 				resp.status(500).json({ error });
 			});
 	}
 )
 
 app.get('/api/map/:id',
+	(req, resp, next) => {
+		const cachedMap = `map/${req.params.id}`;
+		const params = {
+			Bucket: 'abc123',
+			Key: cachedMap
+		}
+		s.checkExists(params, s3conn)
+			.then(result => {
+				if (!result.exists)
+					return next();
+				console.info('performing redirect for %s', cachedMap);
+				resp.redirect(301, `https://abc123.sgp1.digitaloceanspaces.com/${cachedMap}`)
+			})
+			.catch(error => {
+				console.error('Error: %s: ', req.originalUrl, error);
+				resp.status(500).json({ error });
+			})
+	},
 	(req, resp) => {
+		const mapName = `map/${req.params.id}`;
 		m.getPropertyById(req.params.id, client)
 			.then(result => {
 				if (!result)
@@ -87,13 +109,23 @@ app.get('/api/map/:id',
 				)
 			})
 			.then(result => {
+				const params = {
+					Bucket: 'abc123',
+					Key: mapName,
+					Body: result,
+					ACL: 'public-read',
+					ContentType: 'image/png'
+				}
+				return s.saveMap(params, s3conn)
+			})
+			.then(result => {
 				if (!result)
 					return resp.status(404).json({ error });
-				console.info(typeof result);
-				resp.status(200).type('image/png').send(result);
+				resp.redirect(301, `https://abc123.sgp1.digitaloceanspaces.com/${mapName}`)
+				//resp.status(200).type('image/png').send(result);
 			})
 			.catch(error => {
-				console.error(error);
+				console.error('Error: %s: ', req.originalUrl, error);
 				resp.status(500).json({ error });
 			});
 	}
